@@ -17,6 +17,14 @@
   <img src="docs/story.png" alt="Una noticia en No Noise News" width="820">
 </p>
 
+## Demo
+
+Un minuto y medio, del cuestionario a tu primer periódico (pulsa para verlo; el vídeo está en inglés):
+
+<p align="center">
+  <a href="docs/demo.mp4"><img src="docs/demo.jpg" alt="Ver la demo" width="820"></a>
+</p>
+
 ## Qué hace
 
 - **Solo tus noticias.** Un cuestionario corto: cuántas noticias, qué temas y cuánto pesa cada uno (*Siempre*, *Más*, *Normal*, *Menos*, *Nunca*), y lo que quieras contarle con tus palabras.

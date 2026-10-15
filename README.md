@@ -17,6 +17,14 @@
   <img src="docs/story.png" alt="A story in No Noise News" width="820">
 </p>
 
+## Demo
+
+A minute and a half, from the questionnaire to your first paper (click to play):
+
+<p align="center">
+  <a href="docs/demo.mp4"><img src="docs/demo.jpg" alt="Watch the demo" width="820"></a>
+</p>
+
 ## What it does
 
 - **Only your news.** A short questionnaire: how many stories, which topics and how much each one weighs (*Always*, *More*, *Normal*, *Less*, *Never*), and anything else in your own words.
