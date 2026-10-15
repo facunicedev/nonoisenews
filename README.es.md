@@ -21,9 +21,7 @@
 
 Un minuto y medio, del cuestionario a tu primer periódico (pulsa para verlo; el vídeo está en inglés):
 
-<p align="center">
-  <a href="docs/demo.mp4"><img src="docs/demo.jpg" alt="Ver la demo" width="820"></a>
-</p>
+https://github.com/user-attachments/assets/ea7cb2fc-d309-4fa4-813f-0ee2ffd23ade
 
 ## Qué hace
 
