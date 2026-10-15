@@ -21,9 +21,11 @@
 
 A minute and a half, from the questionnaire to your first paper (click to play):
 
-<p align="center">
-  <a href="docs/demo.mp4"><img src="docs/demo.jpg" alt="Watch the demo" width="820"></a>
-</p>
+
+
+https://github.com/user-attachments/assets/ea7cb2fc-d309-4fa4-813f-0ee2ffd23ade
+
+
 
 ## What it does
 
