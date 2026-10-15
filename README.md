@@ -14,6 +14,10 @@
 </p>
 
 <p align="center">
+  <a href="https://github.com/facunicedev/nonoisenews/releases/latest/download/NoNoiseNews.zip"><b>⬇ Download No Noise News</b></a> · <a href="#getting-started">How to install it</a>
+</p>
+
+<p align="center">
   <img src="docs/story.png" alt="A story in No Noise News" width="820">
 </p>
 
@@ -52,6 +56,7 @@ You don't need to know anything about computers. It takes about ten minutes the 
 2. **Download No Noise News.** Click here: **[NoNoiseNews.zip](https://github.com/facunicedev/nonoisenews/releases/latest/download/NoNoiseNews.zip)**.
 3. **Unzip it.** Go to your **Downloads** folder, right-click the file `NoNoiseNews.zip` and choose **Extract All** → **Extract**. A folder called `NoNoiseNews` appears. Move it wherever you like, for example to **Documents**. That folder is your No Noise News: don't delete it, your news and settings live there.
 4. **Open the folder in Claude.** Open the Claude app and click **Code** at the top. Click the folder selector, choose the No Noise News folder you just unzipped and confirm. If Claude asks whether you trust the folder, say yes.
+   *Downloaded it with GitHub's green **Code** button instead?* Then inside `nonoisenews-main` there's another `nonoisenews-main`: open that inner one.
    *Shortcut:* double-click **Abrir con Claude** inside the folder and it opens there by itself.
 5. **Say hi.** Type **hi** in the chat and press Enter. Claude sets up your computer on its own (if Python is missing, it installs it). Whenever it asks for permission, click **Allow**.
 6. **The page opens next to the chat.** On the right side of the Claude window you'll see No Noise News with a short questionnaire: your language, how many stories, your topics. Fill it in and click **Save**. (If it doesn't appear on the right, Claude opens it in your browser instead.)
