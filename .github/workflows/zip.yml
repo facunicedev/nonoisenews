@@ -1,0 +1,16 @@
+# Publica NoNoiseNews.zip sin carpeta raíz: «Extraer todo» de Windows ya crea una, y así no queda doble.
+name: Zip
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: write
+jobs:
+  zip:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: git archive --format=zip -o NoNoiseNews.zip HEAD
+      - run: gh release upload latest NoNoiseNews.zip --clobber || gh release create latest NoNoiseNews.zip --title "No Noise News" --notes "Download NoNoiseNews.zip"
+        env:
+          GH_TOKEN: ${{ github.token }}

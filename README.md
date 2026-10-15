@@ -49,8 +49,8 @@ You don't need to know anything about computers. It takes about ten minutes the 
 ### Step by step
 
 1. **Install the Claude app.** Go to [claude.ai/download](https://claude.ai/download), download the Windows version, install it and sign in with your account.
-2. **Download No Noise News.** On this page, at the top, click the green **Code** button and then **Download ZIP**.
-3. **Unzip it.** Go to your **Downloads** folder, right-click the file `nonoisenews-main.zip` and choose **Extract All** → **Extract**. A normal folder appears. Move it wherever you like, for example to **Documents**. That folder is your No Noise News: don't delete it, your news and settings live there.
+2. **Download No Noise News.** Click here: **[NoNoiseNews.zip](https://github.com/facunicedev/nonoisenews/releases/latest/download/NoNoiseNews.zip)**.
+3. **Unzip it.** Go to your **Downloads** folder, right-click the file `NoNoiseNews.zip` and choose **Extract All** → **Extract**. A folder called `NoNoiseNews` appears. Move it wherever you like, for example to **Documents**. That folder is your No Noise News: don't delete it, your news and settings live there.
 4. **Open the folder in Claude.** Open the Claude app and click **Code** at the top. Click the folder selector, choose the No Noise News folder you just unzipped and confirm. If Claude asks whether you trust the folder, say yes.
    *Shortcut:* double-click **Abrir con Claude** inside the folder and it opens there by itself.
 5. **Say hi.** Type **hi** in the chat and press Enter. Claude sets up your computer on its own (if Python is missing, it installs it). Whenever it asks for permission, click **Allow**.
