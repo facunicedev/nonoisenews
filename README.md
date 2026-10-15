@@ -19,13 +19,9 @@
 
 ## Demo
 
-A minute and a half, from the questionnaire to your first paper (click to play):
-
-
+A minute and a half, from the questionnaire to your first paper:
 
 https://github.com/user-attachments/assets/ea7cb2fc-d309-4fa4-813f-0ee2ffd23ade
-
-
 
 ## What it does
 

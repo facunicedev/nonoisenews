@@ -19,7 +19,7 @@
 
 ## Demo
 
-Un minuto y medio, del cuestionario a tu primer periódico (pulsa para verlo; el vídeo está en inglés):
+Un minuto y medio, del cuestionario a tu primer periódico (en inglés):
 
 https://github.com/user-attachments/assets/ea7cb2fc-d309-4fa4-813f-0ee2ffd23ade
 
