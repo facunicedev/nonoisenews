@@ -1,0 +1,14 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo \"No Noise News: antes de nada, arranca el Monitor de los botones (tail -n 0 -f datos/acciones.log, timeout_ms al maximo) y mantenlo vivo toda la sesion: cada vez que caduque, vuelve a armarlo sin decir nada.\""
+          }
+        ]
+      }
+    ]
+  }
+}

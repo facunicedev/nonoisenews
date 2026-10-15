@@ -1,0 +1,663 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>No Noise News</title>
+<link rel="icon" href="icono.png" type="image/png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Old+Standard+TT:ital,wght@0,400;0,700;1,400&family=Playfair+Display:wght@700;900&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
+<style>
+/* Periódico antiguo: papel crema, tinta casi negra, filetes. Modo noche: papel oscuro, tinta crema. */
+:root {
+  --fondo: #ece3cf; --papel: #f3ecdc; --tinta: #1d1913; --suave: #5f5649; --linea: #2b251c; --tenue: #c9bea6;
+  --acento: #7a1e14; --gratis: #2f5d2a; --pago: #8a5a12; --no: #7a1e14;
+  --texto: "Old Standard TT", Georgia, "Times New Roman", serif;
+  --titular: "Playfair Display", Georgia, serif;
+  --gotica: "UnifrakturMaguntia", "Old English Text MT", Georgia, serif;
+  --columna: 920px; /* la columna del periódico: del logo al selector de idioma */
+}
+:root[data-theme="dark"] {
+  --fondo: #181611; --papel: #201d17; --tinta: #e8dfca; --suave: #a59a85; --linea: #8c8170; --tenue: #3d372d;
+  --acento: #d9967c; --gratis: #9cc58f; --pago: #e0b46a; --no: #e39a85;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --fondo: #181611; --papel: #201d17; --tinta: #e8dfca; --suave: #a59a85; --linea: #8c8170; --tenue: #3d372d;
+    --acento: #d9967c; --gratis: #9cc58f; --pago: #e0b46a; --no: #e39a85;
+  }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--fondo); color: var(--tinta); font: 18px/1.6 var(--texto); }
+button, select, input, textarea { font: inherit; color: inherit; }
+
+/* cabecera de periódico */
+header, main { max-width: var(--columna); margin: 0 auto; padding-left: 16px; padding-right: 16px; }
+header { padding-top: 10px; text-align: center; }
+.barra { display: flex; justify-content: space-between; align-items: center; gap: 10px; font-size: 14px; color: var(--suave);
+         font-variant: small-caps; letter-spacing: .5px; border-bottom: 1px solid var(--linea); padding-bottom: 6px; }
+.controles { display: flex; gap: 8px; align-items: center; }
+.marca { display: flex; align-items: center; justify-content: center; gap: .25em; position: relative; font: 400 clamp(40px, 8vw, 78px)/1.05 var(--gotica); margin: 10px 0 6px; }
+.marca .logo { height: .74em; position: absolute; left: 0; top: 50%; transform: translateY(-54%); aspect-ratio: 773 / 420; flex: none; background: currentColor;
+               -webkit-mask: url(logo.png) center / contain no-repeat; mask: url(logo.png) center / contain no-repeat; }
+nav.secciones { display: flex; justify-content: center; gap: 4px 28px; flex-wrap: wrap; border-top: 3px double var(--linea);
+                border-bottom: 1px solid var(--linea); padding: 6px 0; }
+nav.secciones button, .subtabs button { background: none; border: 0; padding: 2px 0; cursor: pointer; color: var(--suave); font-variant: small-caps;
+                       letter-spacing: 1px; font-size: 20px; border-bottom: 1px solid transparent; }
+nav.secciones button[aria-current="true"], .subtabs button[aria-current="true"] { color: var(--tinta); font-weight: 700; border-color: var(--tinta); }
+select, input, textarea { background: var(--papel); border: 1px solid var(--linea); border-radius: 0; padding: 6px 8px; }
+.icono { background: none; border: 1px solid var(--linea); width: 34px; height: 34px; cursor: pointer; font-size: 16px; line-height: 1; }
+
+main { padding-top: 4px; padding-bottom: 40px; }
+.portada { display: flex; align-items: center; justify-content: space-between; gap: 8px 16px; flex-wrap: wrap; padding: 16px 0 14px; }
+.portada h1 { font: 900 clamp(26px, 4.5vw, 36px)/1.1 var(--titular); margin: 0; }
+.portada p { color: var(--suave); margin: 4px 0 0; font-size: 15px; font-style: italic; }
+.lado { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.estado:empty { display: none; }
+.estado { color: var(--suave); font-size: 15px; font-style: italic; }
+
+/* carrusel: la tarjeta ocupa la columna entera; las flechas, grandes, fuera de ella y a media pantalla */
+.pista { display: flex; align-items: flex-start; gap: 16px; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; scrollbar-width: none; transition: height .2s; }
+.pista::-webkit-scrollbar { display: none; }
+.slide { flex: 0 0 100%; scroll-snap-align: start; }
+.flecha { position: fixed; top: 50%; transform: translateY(-50%); z-index: 5; width: 88px; height: 88px; border-radius: 50%;
+          border: 1px solid var(--linea); background: var(--papel); color: var(--tinta); font: 400 64px/1 var(--titular);
+          cursor: pointer; padding-bottom: 10px; }
+.flecha[data-dir="-1"] { left: max(10px, calc(50% - var(--columna) / 2 - 130px)); }
+.flecha[data-dir="1"] { right: max(10px, calc(50% - var(--columna) / 2 - 130px)); }
+.flecha:hover:not(:disabled) { background: var(--tinta); color: var(--papel); }
+.flecha:disabled { opacity: .2; cursor: default; }
+.flecha:focus:not(:focus-visible) { outline: none; }
+.pila { display: grid; gap: 22px; }
+.contador { text-align: center; color: var(--suave); font-size: 14px; padding-top: 12px; font-variant: small-caps; letter-spacing: 1px; }
+
+.subtabs { display: flex; justify-content: center; gap: 4px 18px; flex-wrap: wrap; margin-bottom: 14px; }
+
+.boton { background: var(--tinta); color: var(--papel); border: 1px solid var(--tinta); border-radius: 0; padding: 10px 24px; cursor: pointer;
+         font-variant: small-caps; letter-spacing: 1.5px; font-weight: 700; font-size: 18px; }
+.boton:hover:not(:disabled) { background: var(--acento); border-color: var(--acento); }
+.boton:disabled { opacity: .5; cursor: default; }
+.secundario { background: none; border: 1px solid var(--linea); border-radius: 0; padding: 6px 14px; cursor: pointer; font-size: 15px; font-variant: small-caps; letter-spacing: 1px; }
+.secundario:hover { background: var(--tinta); color: var(--papel); }
+.secundario.no { color: var(--no); border-color: var(--no); }
+
+/* la tarjeta es una página de periódico */
+.tarjeta { background: var(--papel); border: 1px solid var(--linea); outline: 1px solid var(--linea); outline-offset: -5px; padding: 28px 34px; }
+.tema { display: block; text-align: center; font-size: 21px; font-variant: small-caps; letter-spacing: 2px; color: var(--acento);
+        border-bottom: 1px solid var(--tenue); padding-bottom: 6px; margin-bottom: 10px; }
+.tarjeta h2 { font: 900 clamp(24px, 3.6vw, 34px)/1.15 var(--titular); margin: 4px 0 14px; text-align: center; }
+.tarjeta p { margin: 0 0 12px; text-align: justify; hyphens: auto; }
+.tarjeta strong { font-weight: 700; }
+.tarjeta h2 + p::first-letter, .esencial p::first-letter { float: left; font: 900 3.4em/.8 var(--titular); padding: 6px 8px 0 0; }
+.esencial p { font-size: 22px; line-height: 1.55; }
+.importa { color: var(--suave); font-style: italic; border-left: 2px solid var(--tenue); padding-left: 12px; }
+.ampliacion { border-top: 3px double var(--linea); margin-top: 18px; padding-top: 14px; }
+.fuentes { list-style: none; padding: 10px 0 0; margin: 14px 0; border-top: 1px solid var(--tenue); display: flex; flex-wrap: wrap; gap: 4px 18px; font-size: 15px; }
+.fuentes a { color: var(--tinta); text-decoration: underline; text-decoration-color: var(--tenue); text-underline-offset: 3px; }
+.fuentes a:hover { text-decoration-color: var(--tinta); }
+.chip { font-size: 13px; font-style: italic; }
+.chip.gratis { color: var(--gratis); } .chip.pago { color: var(--pago); }
+.acciones { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; justify-content: center; }
+.porque { margin-top: 12px; display: grid; gap: 8px; }
+/* «Pregúntame»: sus preguntas y mis respuestas, dentro de la noticia */
+.preguntas { margin-top: 22px; border-top: 3px double var(--linea); padding-top: 14px; }
+.preguntas h3 { font: 700 21px var(--titular); margin: 0 0 10px; text-align: center; }
+.qa { margin-bottom: 16px; }
+.qa .q { font-style: italic; font-weight: 700; margin-bottom: 6px; }
+.qa .q::before { content: "— "; }
+.qa .fuentes { margin-top: 6px; }
+.preguntar { display: grid; gap: 8px; }
+.preguntar textarea { width: 100%; min-height: 70px; }
+.preguntar .boton { justify-self: end; }
+.porque textarea { width: 100%; min-height: 64px; }
+.aviso { color: var(--suave); font-size: 15px; font-style: italic; text-align: center; }
+.novedad { font: 400 13px var(--texto); font-variant: small-caps; color: var(--acento); letter-spacing: 1px; margin-left: 10px; vertical-align: middle; }
+
+/* indicadores */
+.cifras { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-top: 6px; border-top: 1px solid var(--linea); }
+.cifra { padding: 12px 14px; border-bottom: 1px solid var(--tenue); border-right: 1px solid var(--tenue); }
+.cifra .nombre { font-size: 14px; color: var(--suave); font-variant: small-caps; letter-spacing: 1px; }
+.cifra .valor { font: 900 26px/1.2 var(--titular); }
+.cifra .var { font-size: 14px; color: var(--suave); font-style: italic; }
+.cifra .antes { font-size: 15px; margin-top: 4px; }
+.cifra .antes b { font-weight: 400; color: var(--suave); }
+.cifra .lectura { font-size: 15px; line-height: 1.45; margin-top: 8px; padding-top: 8px; border-top: 1px dotted var(--tenue); }
+
+/* cuestionario */
+form { display: grid; gap: 26px; }
+fieldset { border: 0; padding: 0; margin: 0; display: grid; gap: 8px; }
+legend { font: 700 20px var(--titular); margin-bottom: 4px; }
+.ayuda { color: var(--suave); font-size: 15px; margin: -4px 0 4px; font-style: italic; }
+.fila { display: flex; gap: 8px; align-items: center; }
+.fila input { flex: 1; min-width: 0; }
+.temas { display: grid; gap: 8px; }
+.quitar { background: none; border: 0; color: var(--suave); font-size: 22px; cursor: pointer; padding: 0 6px; }
+textarea { min-height: 120px; resize: vertical; }
+.casilla { display: flex; gap: 10px; align-items: flex-start; font-size: 17px; cursor: pointer; }
+.casilla input { width: 20px; height: 20px; margin-top: 3px; flex: none; }
+.intro h1 { font: 900 32px/1.2 var(--titular); margin: 16px 0 4px; }
+.intro p { color: var(--suave); margin: 0 0 18px; font-style: italic; }
+[hidden] { display: none !important; }
+
+/* sin sitio a los lados: flechas más pequeñas, pegadas al borde de la pantalla */
+@media (max-width: 1200px) {
+  .flecha { width: 52px; height: 52px; font-size: 38px; padding-bottom: 6px; opacity: .92; }
+  .flecha[data-dir="-1"] { left: 6px; } .flecha[data-dir="1"] { right: 6px; }
+  main { padding-left: 66px; padding-right: 66px; max-width: calc(var(--columna) + 100px); }
+}
+@media (max-width: 640px) {
+  .marca .logo { position: static; transform: none; } /* en el móvil no cabe a un lado: vuelve junto al título */
+  .marca { font-size: clamp(24px, 7.2vw, 40px); }
+  body { font-size: 17px; }
+  main { padding-left: 12px; padding-right: 12px; }
+  .flecha { top: auto; bottom: 14px; transform: none; width: 48px; height: 48px; }
+  .tarjeta { padding: 20px 16px; }
+  .tarjeta p { text-align: left; }
+  .esencial p { font-size: 19px; }
+  nav.secciones { gap: 4px 16px; }
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="barra">
+    <span id="hoy"></span>
+    <span class="controles">
+      <select id="idioma" aria-label="Idioma">
+        <option value="es">ES</option><option value="es-419">ES-LatAm</option><option value="en">EN</option>
+        <option value="fr">FR</option><option value="de">DE</option>
+      </select>
+      <button class="icono" id="tema" type="button"></button>
+    </span>
+  </div>
+  <div class="marca"><span class="logo" aria-hidden="true"></span><span id="marca"></span></div>
+  <nav class="secciones">
+    <button id="tab-inicio" data-i18n="inicio"></button>
+    <button id="tab-general" data-i18n="general"></button>
+    <button id="tab-busqueda" data-i18n="busqueda"></button>
+  </nav>
+</header>
+
+<main id="inicio" class="pantalla" hidden>
+  <section class="portada">
+    <div><h1 data-i18n="lema"></h1><p id="fecha"></p></div>
+    <div class="lado"><span class="estado" id="estado" aria-live="polite"></span><button class="boton" id="informame" data-i18n="informame"></button></div>
+  </section>
+  <div class="carrusel" id="car-inicio"></div>
+</main>
+
+<main id="general" class="pantalla" hidden>
+  <section class="portada">
+    <div><h1 data-i18n="generalTitulo"></h1><p id="general-fecha"></p></div>
+  </section>
+  <nav class="subtabs" id="subtabs"></nav>
+  <div class="carrusel" id="car-general"></div>
+</main>
+
+<main id="busqueda" hidden>
+  <div class="intro" id="intro" hidden><h1 data-i18n="introTitulo"></h1><p data-i18n="intro"></p></div>
+  <form id="form">
+    <fieldset>
+      <legend data-i18n="idiomaDef"></legend>
+      <select id="idioma-def" style="max-width:260px">
+        <option value="es">Español</option><option value="es-419">Español (Latinoamérica)</option><option value="en">English</option>
+        <option value="fr">Français</option><option value="de">Deutsch</option>
+      </select>
+    </fieldset>
+    <fieldset>
+      <legend data-i18n="cuantas"></legend>
+      <div class="fila"><input type="number" id="cuantas" min="1" max="30" required style="max-width:110px"></div>
+    </fieldset>
+    <fieldset>
+      <legend data-i18n="palabras"></legend>
+      <div class="fila"><input type="number" id="palabras" min="50" max="2000" step="50" required style="max-width:110px"></div>
+    </fieldset>
+    <fieldset>
+      <legend data-i18n="temas"></legend>
+      <p class="ayuda" data-i18n="temasAyuda"></p>
+      <div class="temas" id="temas"></div>
+      <div><button type="button" class="secundario" id="anadir" data-i18n="anadirTema"></button></div>
+    </fieldset>
+    <fieldset>
+      <legend data-i18n="prosa"></legend>
+      <textarea id="prosa" data-i18n-ph="prosaPh"></textarea>
+    </fieldset>
+    <fieldset>
+      <legend data-i18n="region"></legend>
+      <input id="region" data-i18n-ph="regionPh">
+    </fieldset>
+    <fieldset>
+      <legend data-i18n="idiomasFuentes"></legend>
+      <input id="idiomas" data-i18n-ph="idiomasPh">
+    </fieldset>
+    <fieldset>
+      <legend data-i18n="paises"></legend>
+      <p class="ayuda" data-i18n="paisesAyuda"></p>
+      <input id="paises" data-i18n-ph="paisesPh">
+    </fieldset>
+    <fieldset>
+      <legend data-i18n="autoTitulo"></legend>
+      <label class="casilla"><input type="checkbox" id="auto"> <span data-i18n="autoTexto"></span></label>
+    </fieldset>
+    <div><button class="boton" data-i18n="guardar"></button> <span class="aviso" id="guardado" aria-live="polite"></span></div>
+  </form>
+</main>
+
+<script>
+const NOMBRE = "No Noise News";
+const PESOS = ["innegociable", "mas", "normal", "menos", "nunca"];
+const T = {
+  es: {
+    general: "En general", generalTitulo: "Cómo está el mundo", generalVacio: "Se rellena con el primer «Infórmame».",
+    novedad: "novedad", palabras: "Máximo de palabras por noticia",
+    paises: "Países que quieres seguir en «En general»", paisesAyuda: "Opcional. «En general» es mundial y no usa tus temas; esto solo añade estos países.",
+    paisesPh: "España, Argentina…",
+    inicio: "Inicio", busqueda: "Tu búsqueda", informame: "Infórmame", lema: "Tu periódico de hoy", modoDia: "Modo día", haceUnAno: "Hace un año:", preguntame: "Pregúntame", preguntar: "Preguntar", respondiendo: "Lo estoy buscando…", preguntaPh: "¿Algo que no entiendes, un término, un antecedente, qué significa para ti? Pregúntalo como quieras.", modoNoche: "Modo noche", indicadores: "Indicadores",
+    buscando: "Buscando tus noticias… tarda unos minutos.", traduciendo: "Traduciendo tus noticias… un momento.", actualizado: "Actualizado el {f}",
+    vacio: "Aún no hay noticias. Pulsa «Infórmame».", esencial: "Lo esencial", importa: "Por qué te importa:",
+    mas: "Quiero saber más", no: "No me interesa", ampliando: "Buscando más sobre esto…",
+    porque: "¿Por qué? (opcional, me ayuda a afinar)", enviar: "Enviar", cancelar: "Cancelar",
+    gratis: "gratis", pago: "de pago", quitada: "Quitada. Lo tendré en cuenta.",
+    introTitulo: "Primero, cuéntame qué quieres leer", intro: "Lo cambias cuando quieras en «Tu búsqueda».",
+    idiomaDef: "Idioma", cuantas: "¿Cuántas noticias cada vez?", temas: "Temas",
+    temasAyuda: "Cuánto pesa cada uno. «Siempre»: al menos una cada vez. «Nunca»: fuera.",
+    pesos: { innegociable: "Siempre", mas: "Más", normal: "Normal", menos: "Menos", nunca: "Nunca" },
+    anadirTema: "Añadir tema", nuevoTema: "Tema", prosa: "Cuéntalo con tus palabras",
+    prosaPh: "Tu sector, empresas que sigues, lo que te sobra, el tono que te gusta…",
+    region: "¿De dónde quieres la actualidad?", regionPh: "España, Europa, el mundo…",
+    idiomasFuentes: "¿En qué idiomas lees las fuentes?", idiomasPh: "español, inglés",
+    guardar: "Guardar", guardado: "Guardado. Pulsa «Infórmame» cuando quieras.", error: "No se ha podido guardar: ",
+    autoTitulo: "¿Te las busco solo?", autoTexto: "Sí: cada vez que abras Claude, si aún no tienes las de hoy, las busco sin que pulses nada.",
+    temasDefecto: ["Mi sector", "Empresas", "Economía", "Tecnología", "Ciencia", "Buenas noticias", "Internacional", "Política", "Cultura", "Deportes"],
+  },
+  en: {
+    general: "The big picture", generalTitulo: "How the world stands", generalVacio: "Filled in with the first «Brief me».",
+    novedad: "new", palabras: "Maximum words per story",
+    paises: "Countries to follow in «The big picture»", paisesAyuda: "Optional. «The big picture» is global and ignores your topics; this only adds these countries.",
+    paisesPh: "Spain, Argentina…",
+    inicio: "Home", busqueda: "Your search", informame: "Brief me", lema: "Your paper today", modoDia: "Day mode", haceUnAno: "A year ago:", preguntame: "Ask me", preguntar: "Ask", respondiendo: "Looking into it…", preguntaPh: "Something you don't get, a term, the background, what it means for you? Ask it however you like.", modoNoche: "Night mode", indicadores: "Indicators",
+    buscando: "Finding your news… this takes a few minutes.", traduciendo: "Translating your news… one moment.", actualizado: "Updated {f}",
+    vacio: "No news yet. Press «Brief me».", esencial: "The essentials", importa: "Why it matters to you:",
+    mas: "Tell me more", no: "Not interested", ampliando: "Looking for more on this…",
+    porque: "Why? (optional, helps me fine-tune)", enviar: "Send", cancelar: "Cancel",
+    gratis: "free", pago: "paywall", quitada: "Removed. I'll keep it in mind.",
+    introTitulo: "First, tell me what you want to read", intro: "You can change it any time in «Your search».",
+    idiomaDef: "Language", cuantas: "How many stories each time?", temas: "Topics",
+    temasAyuda: "How much each one weighs. «Always»: at least one every time. «Never»: out.",
+    pesos: { innegociable: "Always", mas: "More", normal: "Normal", menos: "Less", nunca: "Never" },
+    anadirTema: "Add topic", nuevoTema: "Topic", prosa: "In your own words",
+    prosaPh: "Your industry, companies you follow, what you can do without, the tone you like…",
+    region: "Where do you want your news from?", regionPh: "Spain, Europe, the world…",
+    idiomasFuentes: "Which languages can you read sources in?", idiomasPh: "English, Spanish",
+    guardar: "Save", guardado: "Saved. Press «Brief me» whenever you like.", error: "Couldn't save: ",
+    autoTitulo: "Shall I fetch them on my own?", autoTexto: "Yes: whenever you open Claude, if you don't have today's yet, I'll fetch them without you pressing anything.",
+    temasDefecto: ["My industry", "Companies", "Economy", "Technology", "Science", "Good news", "World", "Politics", "Culture", "Sport"],
+  },
+  fr: {
+    general: "En général", generalTitulo: "L'état du monde", generalVacio: "Se remplit au premier «Informe-moi».",
+    novedad: "nouveau", palabras: "Nombre maximum de mots par actualité",
+    paises: "Pays à suivre dans «En général»", paisesAyuda: "Facultatif. «En général» est mondial et ignore tes sujets ; ceci ajoute seulement ces pays.",
+    paisesPh: "France, Espagne…",
+    inicio: "Accueil", busqueda: "Ta recherche", informame: "Informe-moi", lema: "Ton journal du jour", modoDia: "Mode jour", haceUnAno: "Il y a un an :", preguntame: "Demande-moi", preguntar: "Demander", respondiendo: "Je cherche…", preguntaPh: "Quelque chose que tu ne comprends pas, un terme, le contexte, ce que ça change pour toi ? Demande comme tu veux.", modoNoche: "Mode nuit", indicadores: "Indicateurs",
+    buscando: "Je cherche tes actualités… quelques minutes.", traduciendo: "Je traduis tes actualités… un instant.", actualizado: "Mis à jour le {f}",
+    vacio: "Pas encore d'actualités. Appuie sur «Informe-moi».", esencial: "L'essentiel", importa: "Pourquoi ça te concerne :",
+    mas: "En savoir plus", no: "Ça ne m'intéresse pas", ampliando: "Je cherche plus sur ce sujet…",
+    porque: "Pourquoi ? (facultatif, ça m'aide à affiner)", enviar: "Envoyer", cancelar: "Annuler",
+    gratis: "gratuit", pago: "payant", quitada: "Retirée. J'en tiendrai compte.",
+    introTitulo: "D'abord, dis-moi ce que tu veux lire", intro: "Tu peux le changer quand tu veux dans «Ta recherche».",
+    idiomaDef: "Langue", cuantas: "Combien d'actualités à chaque fois ?", temas: "Sujets",
+    temasAyuda: "Le poids de chacun. «Toujours» : au moins une à chaque fois. «Jamais» : exclu.",
+    pesos: { innegociable: "Toujours", mas: "Plus", normal: "Normal", menos: "Moins", nunca: "Jamais" },
+    anadirTema: "Ajouter un sujet", nuevoTema: "Sujet", prosa: "Avec tes propres mots",
+    prosaPh: "Ton secteur, les entreprises que tu suis, ce dont tu te passes, le ton que tu aimes…",
+    region: "D'où veux-tu l'actualité ?", regionPh: "France, Europe, le monde…",
+    idiomasFuentes: "Dans quelles langues lis-tu les sources ?", idiomasPh: "français, anglais",
+    guardar: "Enregistrer", guardado: "Enregistré. Appuie sur «Informe-moi» quand tu veux.", error: "Impossible d'enregistrer : ",
+    autoTitulo: "Je les cherche tout seul ?", autoTexto: "Oui : chaque fois que tu ouvres Claude, si tu n'as pas encore celles du jour, je les cherche sans que tu appuies sur rien.",
+    temasDefecto: ["Mon secteur", "Entreprises", "Économie", "Technologie", "Science", "Bonnes nouvelles", "International", "Politique", "Culture", "Sport"],
+  },
+  de: {
+    general: "Im Überblick", generalTitulo: "Wie die Welt dasteht", generalVacio: "Wird beim ersten «Informier mich» gefüllt.",
+    novedad: "neu", palabras: "Maximale Wörter pro Nachricht",
+    paises: "Länder für «Im Überblick»", paisesAyuda: "Optional. «Im Überblick» ist global und ignoriert deine Themen; das fügt nur diese Länder hinzu.",
+    paisesPh: "Deutschland, Spanien…",
+    inicio: "Start", busqueda: "Deine Suche", informame: "Informier mich", lema: "Deine Zeitung von heute", modoDia: "Tagmodus", haceUnAno: "Vor einem Jahr:", preguntame: "Frag mich", preguntar: "Fragen", respondiendo: "Ich suche…", preguntaPh: "Etwas, das du nicht verstehst, ein Begriff, der Hintergrund, was es für dich bedeutet? Frag, wie du willst.", modoNoche: "Nachtmodus", indicadores: "Indikatoren",
+    buscando: "Ich suche deine Nachrichten… das dauert ein paar Minuten.", traduciendo: "Ich übersetze deine Nachrichten… einen Moment.", actualizado: "Aktualisiert am {f}",
+    vacio: "Noch keine Nachrichten. Drück auf «Informier mich».", esencial: "Das Wichtigste", importa: "Warum es dich betrifft:",
+    mas: "Mehr dazu", no: "Interessiert mich nicht", ampliando: "Ich suche mehr dazu…",
+    porque: "Warum? (optional, hilft mir beim Feinschliff)", enviar: "Senden", cancelar: "Abbrechen",
+    gratis: "kostenlos", pago: "Bezahlschranke", quitada: "Entfernt. Ich merke es mir.",
+    introTitulo: "Erzähl mir zuerst, was du lesen willst", intro: "Du kannst es jederzeit in «Deine Suche» ändern.",
+    idiomaDef: "Sprache", cuantas: "Wie viele Nachrichten jedes Mal?", temas: "Themen",
+    temasAyuda: "Wie viel jedes wiegt. «Immer»: jedes Mal mindestens eine. «Nie»: raus.",
+    pesos: { innegociable: "Immer", mas: "Mehr", normal: "Normal", menos: "Weniger", nunca: "Nie" },
+    anadirTema: "Thema hinzufügen", nuevoTema: "Thema", prosa: "In deinen eigenen Worten",
+    prosaPh: "Deine Branche, Firmen, denen du folgst, worauf du verzichten kannst, der Ton, den du magst…",
+    region: "Woher sollen die Nachrichten kommen?", regionPh: "Deutschland, Europa, die Welt…",
+    idiomasFuentes: "In welchen Sprachen liest du Quellen?", idiomasPh: "Deutsch, Englisch",
+    guardar: "Speichern", guardado: "Gespeichert. Drück auf «Informier mich», wann du willst.", error: "Speichern fehlgeschlagen: ",
+    autoTitulo: "Soll ich sie selbst holen?", autoTexto: "Ja: Immer wenn du Claude öffnest und die von heute noch fehlen, hole ich sie, ohne dass du etwas drückst.",
+    temasDefecto: ["Meine Branche", "Unternehmen", "Wirtschaft", "Technologie", "Wissenschaft", "Gute Nachrichten", "International", "Politik", "Kultur", "Sport"],
+  },
+};
+T["es-419"] = { ...T.es, buscando: "Buscando tus noticias… demora unos minutos.", vacio: "Aún no hay noticias. Presiona «Infórmame».",
+  guardado: "Guardado. Presiona «Infórmame» cuando quieras.", regionPh: "Argentina, Latinoamérica, el mundo…" };
+
+const $ = (s) => document.querySelector(s);
+const guardarLocal = (k, v) => { try { v == null ? sessionStorage.removeItem(k) : sessionStorage.setItem(k, v); } catch {} };
+const leerLocal = (k, store = sessionStorage) => { try { return store.getItem(k); } catch { return null; } };
+let lang = leerLocal("idioma", localStorage) || (T[navigator.language] ? navigator.language : (T[navigator.language.slice(0, 2)] ? navigator.language.slice(0, 2) : "es"));
+let estado = { perfil: null, noticias: null, token: "" };
+let vista = null, versionVista = null;
+const ampliando = new Map(), quitadas = new Set(); // ampliando: id -> la ampliación que había al pulsar
+const preguntando = new Map(); // id -> preguntas enviadas que aún no tienen respuesta
+const t = (k) => T[lang][k] ?? T.es[k];
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const negritas = (s) => esc(s).replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+const parrafos = (s) => String(s ?? "").split(/\n\s*\n/).filter(Boolean).map((p) => `<p>${negritas(p)}</p>`).join("");
+const urlSegura = (u) => /^https?:\/\//i.test(u || "") ? u : null;
+
+async function enviar(cuerpo) {
+  const r = await fetch("/api/accion", { method: "POST", headers: { "Content-Type": "application/json", "X-Token": estado.token }, body: JSON.stringify(cuerpo) });
+  if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error || r.status);
+}
+
+// modo día / noche: lo elige el botón; si no, el del sistema
+const oscuro = () => (document.documentElement.dataset.theme || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")) === "dark";
+try { const m = localStorage.getItem("tema"); if (m) document.documentElement.dataset.theme = m; } catch {}
+$("#tema").onclick = () => {
+  const m = oscuro() ? "light" : "dark";
+  document.documentElement.dataset.theme = m;
+  try { localStorage.setItem("tema", m); } catch {}
+  textos();
+};
+
+function textos() {
+  $("#tema").textContent = oscuro() ? "☀" : "☾";
+  $("#tema").title = t(oscuro() ? "modoDia" : "modoNoche");
+  $("#tema").setAttribute("aria-label", $("#tema").title);
+  $("#hoy").textContent = new Date().toLocaleDateString(lang, { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+  document.documentElement.lang = lang;
+  document.title = NOMBRE;
+  $("#marca").textContent = NOMBRE;
+  $("#idioma").value = lang;
+  document.querySelectorAll("[data-i18n]").forEach((e) => (e.textContent = t(e.dataset.i18n)));
+  document.querySelectorAll("[data-i18n-ph]").forEach((e) => (e.placeholder = t(e.dataset.i18nPh)));
+}
+
+function mostrar(v) {
+  vista = v;
+  for (const x of ["inicio", "general", "busqueda"]) {
+    $("#" + x).hidden = v !== x;
+    $("#tab-" + x).setAttribute("aria-current", v === x);
+  }
+  if (v === "busqueda") pintarForm();
+  if (v === "inicio") pintarInicio();
+  if (v === "general") pintarGeneral();
+}
+
+const posicion = {}; // carrusel -> tarjeta en la que estaba, para no volver a la primera al repintar
+let colocarFlechas = () => {};
+addEventListener("scroll", () => colocarFlechas(), { passive: true });
+let subtab = "indicadores";
+
+function carrusel(el, clave, slides) {
+  el.innerHTML = `<button class="flecha" data-dir="-1" aria-label="←">‹</button><div class="pista">${slides.join("")}</div>
+    <button class="flecha" data-dir="1" aria-label="→">›</button><div class="contador"></div>`;
+  const pista = el.querySelector(".pista"), [ant, sig] = el.querySelectorAll(".flecha");
+  const actual = () => Math.round(pista.scrollLeft / (pista.clientWidth + 16));
+  const marcar = () => {
+    const i = actual(), cambia = posicion[clave] !== i;
+    posicion[clave] = i;
+    el.querySelector(".contador").textContent = `${i + 1} / ${slides.length}`;
+    pista.style.height = pista.children[i].offsetHeight + "px"; // la página mide lo que la tarjeta que ves: se baja con la página, no dentro
+    if (cambia && el.getBoundingClientRect().top < 0) el.scrollIntoView({ behavior: "smooth" }); // tarjeta nueva: desde arriba
+    ant.disabled = i <= 0; sig.disabled = i >= slides.length - 1;
+    colocarFlechas();
+  };
+  pista.onscroll = marcar;
+  colocarFlechas = () => {
+    if (innerWidth <= 640) return ant.style.top = sig.style.top = ""; // en móvil van abajo
+    const r = pista.getBoundingClientRect(), y = (Math.max(r.top, 0) + Math.min(r.bottom, innerHeight)) / 2;
+    ant.style.top = sig.style.top = y + "px";
+  };
+  const ro = new ResizeObserver(() => marcar()); // si la tarjeta crece (el «¿por qué?», una ampliación), la página también
+  [...pista.children].forEach((c) => ro.observe(c));
+  el.querySelectorAll(".flecha").forEach((b) => (b.onclick = () => pista.scrollBy({ left: b.dataset.dir * (pista.clientWidth + 16), behavior: "smooth" })));
+  pista.scrollLeft = Math.min(posicion[clave] || 0, slides.length - 1) * (pista.clientWidth + 16);
+  marcar();
+}
+
+// «En general»: las tarjetas de una sección, una debajo de otra; las flechas cambian de sección
+function seccion(el, slides, pestanas) {
+  const i = pestanas.indexOf(subtab);
+  el.innerHTML = `<button class="flecha" data-dir="-1" aria-label="←">‹</button><div class="pila">${slides.join("")}</div>
+    <button class="flecha" data-dir="1" aria-label="→">›</button>`;
+  const pila = el.querySelector(".pila"), [ant, sig] = el.querySelectorAll(".flecha");
+  ant.disabled = i <= 0; sig.disabled = i >= pestanas.length - 1;
+  el.querySelectorAll(".flecha").forEach((b) => (b.onclick = () => {
+    subtab = pestanas[i + Number(b.dataset.dir)];
+    pintarGeneral();
+    if ($("#subtabs").getBoundingClientRect().top < 0) $("#subtabs").scrollIntoView({ behavior: "smooth" });
+  }));
+  colocarFlechas = () => {
+    if (innerWidth <= 640) return ant.style.top = sig.style.top = "";
+    const r = pila.getBoundingClientRect(), y = (Math.max(r.top, 0) + Math.min(r.bottom, innerHeight)) / 2;
+    ant.style.top = sig.style.top = y + "px";
+  };
+  colocarFlechas();
+}
+
+function pintarInicio() {
+  const n = estado.noticias;
+  const fecha = n?.generado ? new Date(n.generado) : null;
+  $("#fecha").textContent = fecha ? t("actualizado").replace("{f}", fecha.toLocaleString(lang, { dateStyle: "full", timeStyle: "short" })) : "";
+  const esperando = leerLocal("esperando");
+  const buscando = esperando !== null && esperando === String(n?.generado ?? "");
+  if (esperando !== null && !buscando) { guardarLocal("esperando", null); guardarLocal("traduciendo", null); }
+  $("#informame").disabled = buscando;
+  $("#estado").textContent = buscando ? t(leerLocal("traduciendo") ? "traduciendo" : "buscando") : "";
+  const slides = (n?.noticias || []).filter((x) => !quitadas.has(x.id)).map(tarjeta);
+  if (n?.esencial) slides.unshift(`<article class="slide tarjeta esencial"><span class="tema">${esc(t("esencial"))}</span>${parrafos(n.esencial)}</article>`);
+  if (!slides.length) slides.push(`<article class="slide tarjeta"><p class="aviso">${esc(buscando ? t("buscando") : t("vacio"))}</p></article>`);
+  if (vista === "inicio") carrusel($("#car-inicio"), "inicio", slides);
+}
+
+function pintarGeneral() {
+  const g = estado.general;
+  const fecha = g?.actualizado ? new Date(g.actualizado) : null;
+  $("#general-fecha").textContent = fecha ? t("actualizado").replace("{f}", fecha.toLocaleString(lang, { dateStyle: "full", timeStyle: "short" })) : t("generalVacio");
+  const bloques = g?.bloques || [], cifras = g?.cifras || [];
+  const ambitos = [...new Set(bloques.map((b) => b.ambito).filter(Boolean))];
+  const pestanas = ["indicadores", ...ambitos];
+  if (!pestanas.includes(subtab)) subtab = "indicadores";
+  $("#subtabs").innerHTML = pestanas.map((x) => `<button data-sub="${esc(x)}" aria-current="${x === subtab}">${esc(x === "indicadores" ? t("indicadores") : x)}</button>`).join("");
+  let slides;
+  if (subtab === "indicadores") {
+    const grupos = [...new Set(cifras.map((c) => c.grupo || ""))];
+    slides = grupos.map((gr) => `<article class="slide tarjeta">${gr ? `<span class="tema">${esc(gr)}</span>` : ""}<div class="cifras">${
+      cifras.filter((c) => (c.grupo || "") === gr).map((c) => `<div class="cifra"><div class="nombre">${esc(c.nombre)}</div>
+        <div class="valor">${esc(c.valor)}</div>${c.variacion ? `<div class="var">${esc(c.variacion)}</div>` : ""}
+        ${c.hace_un_ano ? `<div class="antes">${{ sube: "▲", baja: "▼", igual: "=" }[c.tendencia] || ""} <b>${esc(t("haceUnAno"))}</b> ${esc(c.hace_un_ano)}</div>` : ""}
+        ${c.lectura ? `<div class="lectura">${esc(c.lectura)}</div>` : ""}</div>`).join("")}</div></article>`);
+  } else {
+    slides = bloques.filter((b) => b.ambito === subtab).map((b) => `<article class="slide tarjeta"><span class="tema">${esc(b.ambito)}</span>
+      <h2>${esc(b.titulo)}${b.novedad ? `<span class="novedad">${esc(t("novedad"))}</span>` : ""}</h2>${parrafos(b.texto)}</article>`);
+  }
+  if (!slides.length) slides.push(`<article class="slide tarjeta"><p class="aviso">${esc(t("generalVacio"))}</p></article>`);
+  if (vista === "general") seccion($("#car-general"), slides, pestanas);
+}
+
+function listaFuentes(lista) {
+  return (lista || []).filter((f) => urlSegura(f.url)).map((f) =>
+    `<li><a href="${esc(f.url)}" target="_blank" rel="noopener noreferrer">${esc(f.nombre || new URL(f.url).hostname)}
+      ${f.gratis === true ? `<span class="chip gratis">🔓 ${esc(t("gratis"))}</span>` : f.gratis === false ? `<span class="chip pago">🔒 ${esc(t("pago"))}</span>` : ""}</a></li>`).join("");
+}
+
+function tarjeta(x) {
+  if (ampliando.has(x.id) && ampliando.get(x.id) !== (x.ampliacion || "")) ampliando.delete(x.id);
+  const fuentes = listaFuentes(x.fuentes);
+  const hechas = (x.preguntas || []).filter((q) => q.respuesta);
+  const pendientes = (preguntando.get(x.id) || []).filter((q) => !hechas.some((h) => h.pregunta === q));
+  preguntando.set(x.id, pendientes);
+  return `<article class="slide tarjeta" data-id="${esc(x.id)}">
+    <span class="tema">${esc(x.tema)}</span>
+    <h2>${esc(x.titular)}</h2>
+    ${parrafos(x.texto)}
+    ${x.por_que ? `<p class="importa">${esc(t("importa"))} ${esc(x.por_que)}</p>` : ""}
+    ${x.ampliacion ? `<div class="ampliacion">${parrafos(x.ampliacion)}</div>` : ""}
+    ${fuentes ? `<ul class="fuentes">${fuentes}</ul>` : ""}
+    <div class="acciones">
+      ${ampliando.has(x.id) ? `<span class="aviso">${esc(t("ampliando"))}</span>` : `<button class="secundario" data-mas>${esc(t("mas"))}</button>`}
+      <button class="secundario no" data-no>${esc(t("no"))}</button>
+    </div>
+    <div class="porque" hidden>
+      <textarea placeholder="${esc(t("porque"))}" aria-label="${esc(t("porque"))}"></textarea>
+      <div class="acciones"><button class="boton" data-enviar-no>${esc(t("enviar"))}</button><button class="secundario" data-cancelar>${esc(t("cancelar"))}</button></div>
+    </div>
+    <section class="preguntas">
+      <h3>${esc(t("preguntame"))}</h3>
+      ${hechas.map((q) => `<div class="qa"><p class="q">${esc(q.pregunta)}</p>${parrafos(q.respuesta)}
+        ${listaFuentes(q.fuentes) ? `<ul class="fuentes">${listaFuentes(q.fuentes)}</ul>` : ""}</div>`).join("")}
+      ${pendientes.map((q) => `<div class="qa"><p class="q">${esc(q)}</p><p class="aviso">${esc(t("respondiendo"))}</p></div>`).join("")}
+      <div class="preguntar">
+        <textarea placeholder="${esc(t("preguntaPh"))}" aria-label="${esc(t("preguntame"))}"></textarea>
+        <button class="boton" data-preguntar>${esc(t("preguntar"))}</button>
+      </div>
+    </section>
+  </article>`;
+}
+
+function filaTema(tema = "", peso = "normal") {
+  const d = document.createElement("div");
+  d.className = "fila";
+  d.innerHTML = `<input value="${esc(tema)}" placeholder="${esc(t("nuevoTema"))}" aria-label="${esc(t("nuevoTema"))}">
+    <select aria-label="${esc(t("temas"))}">${PESOS.map((p) => `<option value="${p}" ${p === peso ? "selected" : ""}>${esc(t("pesos")[p])}</option>`).join("")}</select>
+    <button type="button" class="quitar" aria-label="×">×</button>`;
+  d.querySelector(".quitar").onclick = () => d.remove();
+  $("#temas").append(d);
+}
+
+function pintarForm() {
+  const p = estado.perfil;
+  $("#intro").hidden = !!p;
+  $("#guardado").textContent = "";
+  $("#cuantas").value = p?.cuantas ?? 10;
+  $("#palabras").value = p?.palabras_max ?? 600;
+  $("#paises").value = p?.paises_general ?? "";
+  $("#prosa").value = p?.prosa ?? "";
+  $("#region").value = p?.region ?? "";
+  $("#idiomas").value = p?.idiomas_fuentes ?? "";
+  $("#idioma-def").value = lang;
+  $("#auto").checked = !!p?.auto;
+  $("#temas").innerHTML = "";
+  (p?.temas ?? t("temasDefecto").map((tema) => ({ tema, peso: "normal" }))).forEach((x) => filaTema(x.tema, x.peso));
+}
+
+async function cargar() {
+  estado = await (await fetch("/api/estado")).json();
+  versionVista = (await (await fetch("/api/version")).json()).version;
+  textos();
+  if (!vista && T[estado.perfil?.idioma] && estado.perfil.idioma !== lang) { lang = estado.perfil.idioma; textos(); }
+  if (!vista) mostrar(!estado.perfil ? "busqueda" : ["general", "busqueda"].includes(location.hash.slice(1)) ? location.hash.slice(1) : "inicio");
+  pintarInicio(); pintarGeneral();
+}
+
+$("#tab-inicio").onclick = () => estado.perfil && mostrar("inicio");
+$("#tab-busqueda").onclick = () => mostrar("busqueda");
+$("#tab-general").onclick = () => estado.perfil && mostrar("general");
+function cambiarIdioma(nuevo) {
+  lang = nuevo;
+  try { localStorage.setItem("idioma", lang); } catch {}
+  // las noticias ya escritas también cambian de idioma: Claude las traduce y el perfil se queda con el nuevo
+  if (estado.perfil && estado.perfil.idioma !== lang) {
+    if (estado.noticias) { guardarLocal("esperando", String(estado.noticias.generado ?? "")); guardarLocal("traduciendo", "1"); }
+    enviar({ tipo: "idioma", idioma: lang }).then(() => (estado.perfil.idioma = lang)).catch(() => { guardarLocal("esperando", null); pintarInicio(); });
+    estado.perfil.idioma = lang;
+  }
+  textos(); pintarInicio(); pintarGeneral(); if (vista === "busqueda") pintarForm();
+}
+$("#idioma").onchange = (e) => cambiarIdioma(e.target.value);
+// en el cuestionario el idioma va primero: al elegirlo, todo lo demás pasa a ese idioma
+$("#idioma-def").onchange = (e) => cambiarIdioma(e.target.value);
+$("#anadir").onclick = () => { filaTema(); $("#temas").lastElementChild.querySelector("input").focus(); };
+
+$("#form").onsubmit = async (e) => {
+  e.preventDefault();
+  if ($("#idioma-def").value !== lang) cambiarIdioma($("#idioma-def").value);
+  const perfil = {
+    idioma: lang, cuantas: Number($("#cuantas").value), palabras_max: Number($("#palabras").value),
+    paises_general: $("#paises").value.trim(), prosa: $("#prosa").value.trim(),
+    region: $("#region").value.trim(), idiomas_fuentes: $("#idiomas").value.trim(), auto: $("#auto").checked,
+    temas: [...$("#temas").children].map((d) => ({ tema: d.querySelector("input").value.trim(), peso: d.querySelector("select").value })).filter((x) => x.tema),
+  };
+  const primera = !estado.perfil;
+  try {
+    await enviar({ tipo: "guardar_perfil", perfil });
+    await cargar();
+    $("#guardado").textContent = t("guardado");
+    if (primera) mostrar("inicio");
+  } catch (err) { $("#guardado").textContent = t("error") + err.message; }
+};
+
+$("#informame").onclick = async () => {
+  guardarLocal("esperando", String(estado.noticias?.generado ?? ""));
+  pintarInicio(); pintarGeneral();
+  try { await enviar({ tipo: "informame", idioma: lang }); }
+  catch (err) { guardarLocal("esperando", null); pintarInicio(); $("#estado").textContent = t("error") + err.message; }
+};
+
+$("#subtabs").onclick = (e) => {
+  const b = e.target.closest("[data-sub]");
+  if (b) { subtab = b.dataset.sub; pintarGeneral(); }
+};
+
+// flechas del teclado: tarjeta anterior / siguiente
+document.addEventListener("keydown", (e) => {
+  if (!["ArrowLeft", "ArrowRight"].includes(e.key) || e.target.closest("input, textarea, select")) return;
+  document.querySelector("main:not([hidden]) .flecha[data-dir='" + (e.key === "ArrowLeft" ? -1 : 1) + "']")?.click();
+});
+
+$("#car-inicio").onclick = async (e) => {
+  const art = e.target.closest(".tarjeta");
+  if (!art) return;
+  const id = art.dataset.id, caja = art.querySelector(".porque");
+  if (e.target.matches("[data-mas]")) {
+    ampliando.set(id, (estado.noticias?.noticias || []).find((x) => x.id === id)?.ampliacion || ""); pintarInicio();
+    try { await enviar({ tipo: "mas", id }); } catch { ampliando.delete(id); pintarInicio(); }
+  } else if (e.target.matches("[data-no]")) {
+    caja.hidden = false; caja.querySelector("textarea").focus();
+  } else if (e.target.matches("[data-cancelar]")) {
+    caja.hidden = true;
+  } else if (e.target.matches("[data-preguntar]")) {
+    const caja = art.querySelector(".preguntar textarea"), pregunta = caja.value.trim();
+    if (!pregunta) return caja.focus();
+    try {
+      await enviar({ tipo: "pregunta", id, pregunta });
+      preguntando.set(id, [...(preguntando.get(id) || []), pregunta]);
+      caja.value = ""; caja.blur(); pintarInicio();
+    } catch (err) { caja.insertAdjacentHTML("afterend", `<p class="aviso">${esc(t("error") + err.message)}</p>`); }
+  } else if (e.target.matches("[data-enviar-no]")) {
+    try {
+      await enviar({ tipo: "no_interesa", id, porque: caja.querySelector("textarea").value });
+      quitadas.add(id);
+      art.innerHTML = `<p class="aviso">${esc(t("quitada"))}</p>`;
+    } catch (err) { caja.insertAdjacentHTML("beforeend", `<p class="aviso">${esc(t("error") + err.message)}</p>`); }
+  }
+};
+
+// Claude escribe datos/noticias.json: cuando cambia, la página se repinta sola
+setInterval(async () => {
+  try {
+    const v = (await (await fetch("/api/version")).json()).version;
+    if (document.activeElement?.matches("textarea, input")) return; // no borrar lo que está escribiendo
+    if (v !== versionVista) { await cargar(); if (vista === "busqueda" && !document.activeElement.closest?.("form")) pintarForm(); }
+  } catch {}
+}, 3000);
+
+window.addEventListener("resize", () => (vista === "inicio" ? pintarInicio() : vista === "general" && pintarGeneral()));
+cargar();
+</script>
+</body>
+</html>

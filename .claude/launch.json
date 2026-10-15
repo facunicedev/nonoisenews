@@ -1,0 +1,7 @@
+{
+  "version": "0.0.1",
+  "autoVerify": false,
+  "configurations": [
+    { "name": "no-noise-news", "runtimeExecutable": "py", "runtimeArgs": ["panel.py"], "port": 8766 }
+  ]
+}
