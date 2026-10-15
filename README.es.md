@@ -39,15 +39,29 @@ Hablas con Claude en la app de Claude; No Noise News es la página de al lado, d
 
 ## Para empezar
 
-No hace falta saber nada de ordenadores. Son tres cosas y de lo demás se encarga Claude.
+No hace falta saber nada de ordenadores. La primera vez son unos diez minutos, y la parte técnica la hace Claude por ti.
 
-1. **Instala Claude.** Entra en [claude.ai/download](https://claude.ai/download), descarga la versión para Windows, ábrela e inicia sesión. Necesitas una suscripción de pago (Pro o Max).
-2. **Descarga No Noise News.** En esta misma página, arriba, pulsa el botón verde **Code** y luego **Download ZIP**. Cuando termine, ve a tu carpeta de Descargas, haz clic derecho en el archivo y elige **Extraer todo**. Deja la carpeta que sale donde quieras, por ejemplo en Documentos.
-3. **Ábrela con Claude.** Haz doble clic en **Abrir con Claude** dentro de la carpeta: se abre la app de Claude en ella con un saludo ya escrito, solo tienes que pulsar Intro. Si no funciona, abre la app de Claude, entra en la pestaña **Code** (arriba), elige la carpeta y escribe **hola**.
+### Qué necesitas
 
-A partir de ahí, Claude prepara tu ordenador él solo (instala lo que haga falta, aunque no sepas qué es). Cuando te pida permiso para hacer algo, pulsa **Permitir**. A la derecha se abre la página con un cuestionario corto; guárdalo y pulsa **Infórmame**.
+- **Un ordenador con Windows.**
+- **Una suscripción de pago a Claude (Pro o Max).** No Noise News funciona con Claude Code, que viene incluido en esos planes; el plan gratuito no lo incluye. Puedes suscribirte en [claude.ai](https://claude.ai).
 
-Para leer tus noticias sin abrir Claude, haz doble clic en **Abrir** dentro de la carpeta. Se abre en tu navegador; cierra la ventanita negra para apagarlo. Los botones solo funcionan con Claude abierto.
+### Paso a paso
+
+1. **Instala la app de Claude.** Entra en [claude.ai/download](https://claude.ai/download), descarga la versión para Windows, instálala e inicia sesión con tu cuenta.
+2. **Descarga No Noise News.** En esta misma página, arriba, pulsa el botón verde **Code** y luego **Download ZIP**.
+3. **Descomprímelo.** Ve a tu carpeta de **Descargas**, haz clic derecho en el archivo `nonoisenews-main.zip` y elige **Extraer todo** → **Extraer**. Aparece una carpeta normal. Muévela donde quieras, por ejemplo a **Documentos**. Esa carpeta es tu No Noise News: no la borres, ahí se guardan tus noticias y tus ajustes.
+4. **Abre la carpeta en Claude.** Abre la app de Claude y pulsa **Code**, arriba. Pulsa el selector de carpeta, elige la carpeta de No Noise News que acabas de descomprimir y confirma. Si Claude te pregunta si confías en la carpeta, di que sí.
+   *Atajo:* haz doble clic en **Abrir con Claude** dentro de la carpeta y se abre ahí sola.
+5. **Saluda.** Escribe **hola** en el chat y pulsa Intro. Claude prepara tu ordenador él solo (si falta Python, lo instala). Cada vez que te pida permiso, pulsa **Permitir**.
+6. **La página se abre al lado del chat.** A la derecha de la ventana de Claude verás No Noise News con un cuestionario corto: tu idioma, cuántas noticias y tus temas. Rellénalo y pulsa **Guardar**. (Si no aparece a la derecha, Claude te la abre en el navegador.)
+7. **Pulsa «Infórmame».** Claude busca la actualidad y te escribe tu periódico. Tarda unos minutos; cuando está listo, la página se actualiza sola.
+
+### Cada día, después
+
+Abre la app de Claude, entra en **Code**, elige la carpeta de No Noise News y di **hola**. La página se abre a la derecha; pulsa **Infórmame**. Si marcaste «¿Te las busco solo?» en *Tu búsqueda*, ni siquiera hace falta pulsarlo.
+
+Para leer tus noticias sin abrir Claude, haz doble clic en **Abrir** dentro de la carpeta: se abren en tu navegador. Cierra la ventanita negra para apagarlo. Los botones solo funcionan con Claude abierto.
 
 ## La página
 
